@@ -9,6 +9,7 @@ UBUNTU_VERSIONS=( jammy focal )
 PYTHON_VERSIONS=( 3.11 3.10 3.9 3.8 3.7 )
 NODE_VERSIONS=( 18 16 14 )
 
+# only some python versions are supported by the default OS repositories
 JAMMY_SUPPORTED_PYTHON_VERSIONS=( 3.11 3.10 )
 JAMMY_UNSUPPORTED_REPOSITORY="ppa:deadsnakes/ppa"
 FOCAL_SUPPORTED_PYTHON_VERSIONS=( 3.9 3.8 )
@@ -22,9 +23,6 @@ LATEST_NODE_VERSION=${NODE_VERSIONS[0]}
 LOG_FILE="build.log"
 rm ${LOG_FILE}
 touch ${LOG_FILE}
-COMMAND_LOG_FILE="commands.log"
-rm ${COMMAND_LOG_FILE}
-touch ${COMMAND_LOG_FILE}
 
 # Enable docker build cache
 DOCKER_BUILDKIT=1
@@ -69,36 +67,26 @@ do
             buildstart=$(date +%s)
 
             # Build the image
-            CMD="'docker build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} -t ${PRIMARY_TAG_NAME} -f Dockerfile .'"
-            echo ${CMD} >> ${COMMAND_LOG_FILE}
-            eval ${CMD} 2>> ${LOG_FILE}
+            docker build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} -t ${PRIMARY_TAG_NAME} -f Dockerfile . 2>> ${LOG_FILE}
 
             status=$?
             if [ $status -eq 0 ]; then
                 # Apply extra tag names
                 if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" ]; then
                     TAG_NAME="${REPO_NAME}:${PYTHON_VERSION}-${NODE_VERSION}"
-                    CMD="'docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}'"
-                    eval ${CMD}
-                    echo "         ${TAG_NAME}"
+                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 if [ "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
                     TAG_NAME="${REPO_NAME}:${PYTHON_VERSION}-${UBUNTU_VERSION}"
-                    CMD="'docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}'"
-                    eval ${CMD}
-                    echo "         ${TAG_NAME}"
+                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
                     TAG_NAME="${REPO_NAME}:${PYTHON_VERSION}"
-                    CMD="'docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}'"
-                    eval ${CMD}
-                    echo "         ${TAG_NAME}"
+                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" -a "${PYTHON_VERSION}" == "${LATEST_PYTHON_VERSION}" ]; then
                     TAG_NAME="${REPO_NAME}:latest"
-                    CMD="'docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}'"
-                    eval ${CMD}
-                    echo "         ${TAG_NAME}"
+                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 buildend=$(date +%s)
                 echo "   ...build succeeded in $((buildend-buildstart))s"
