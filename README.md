@@ -28,7 +28,7 @@ Alternatively, to build and tag all supported versions, run the bash script (not
 ./build-all.sh
 ```
 
-All output from the build commands is piped to `build.log` to keep stdout uncluttered, and the commands themselved are written to `cmd.log` for extra help debugging.
+All output from the build commands is piped to `build.log` to keep stdout uncluttered, and the commands themselved are written to `commands.log` for extra help debugging.
 
 ## Choices
 
