@@ -1,8 +1,14 @@
 #!/bin/bash
 # Builds all supported LTS versions of Python and Node onto all supported LTS
 # versions of Ubuntu, and tags all images
-
-REPO_NAME="py-node"
+#
+# Usage: ./build-all.sh registry-host/registry-name/image-name c3a81862dc
+#
+# Use passed-in argument but default to "py-node" as the image name,
+# and no suffix
+TAG_PREFIX=${1:-"py-node"}
+TAG_SUFFIX=${2:-""}
+if [ -n "$TAG_SUFFIX" ]; then TAG_SUFFIX="-${TAG_SUFFIX}"; fi
 
 # All supported LTS versions
 UBUNTU_VERSIONS=( jammy focal )
@@ -21,7 +27,7 @@ LATEST_NODE_VERSION=${NODE_VERSIONS[0]}
 
 # Setup logging
 LOG_FILE="build.log"
-rm ${LOG_FILE}
+[ -f ${LOG_FILE} ] && rm ${LOG_FILE}
 touch ${LOG_FILE}
 
 # Enable docker build cache
@@ -56,7 +62,7 @@ do
             :
             NODE_VERSION=${n}
 
-            PRIMARY_TAG_NAME="${REPO_NAME}:${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}"
+            PRIMARY_TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}"
             if [ ! -z "${APT_REPOSITORY}" ]; then
                 echo "Building ${PRIMARY_TAG_NAME} using the ${APT_REPOSITORY} apt repository"
             else
@@ -68,24 +74,25 @@ do
 
             # Build the image
             docker build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} -t ${PRIMARY_TAG_NAME} -f Dockerfile . 2>> ${LOG_FILE}
+            docker tag ${PRIMARY_TAG_NAME} ${PRIMARY_TAG_NAME}${TAG_SUFFIX}
 
             status=$?
             if [ $status -eq 0 ]; then
                 # Apply extra tag names
                 if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" ]; then
-                    TAG_NAME="${REPO_NAME}:${PYTHON_VERSION}-${NODE_VERSION}"
+                    TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}"
                     docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 if [ "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
-                    TAG_NAME="${REPO_NAME}:${PYTHON_VERSION}-${UBUNTU_VERSION}"
+                    TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${UBUNTU_VERSION}"
                     docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
-                    TAG_NAME="${REPO_NAME}:${PYTHON_VERSION}"
+                    TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}"
                     docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" -a "${PYTHON_VERSION}" == "${LATEST_PYTHON_VERSION}" ]; then
-                    TAG_NAME="${REPO_NAME}:latest"
+                    TAG_NAME="${TAG_PREFIX}:latest"
                     docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
                 fi
                 buildend=$(date +%s)
