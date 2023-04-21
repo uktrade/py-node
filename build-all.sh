@@ -25,17 +25,18 @@ LATEST_UBUNTU_VERSION=${UBUNTU_VERSIONS[0]}
 LATEST_PYTHON_VERSION=${PYTHON_VERSIONS[0]}
 LATEST_NODE_VERSION=${NODE_VERSIONS[0]}
 
-# Setup logging
-LOG_FILE="build.log"
-[ -f ${LOG_FILE} ] && rm ${LOG_FILE}
-touch ${LOG_FILE}
-
 # Enable docker build cache
 DOCKER_BUILDKIT=1
 BUILDKIT_INLINE_CACHE=1
 
 
+# all bash vars are global by default ...
+# this function expects to be run with all the right vars set by the below loop
 build_and_tag () {
+    local LOG_FILE="build-${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}.log"
+    [ -f ${LOG_FILE} ] && rm ${LOG_FILE}
+    touch ${LOG_FILE}
+
     PRIMARY_TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}"
     if [ ! -z "${APT_REPOSITORY}" ]; then
         echo "Building ${PRIMARY_TAG_NAME} using the ${APT_REPOSITORY} apt repository"
@@ -107,15 +108,18 @@ do
             :
             NODE_VERSION=${n}
 
+            # run all the build and tag operations in the background to make
+            # use of multiple threads / CPUs
             build_and_tag &
+
             echo ""
-            echo "" >> ${LOG_FILE}
         done
     done
 done
+
+# wait for all commands to complete
 wait
 
-echo "=========================== COMPLETE ===========================" >> ${LOG_FILE}
 scriptend=$(date +%s)
 echo ""
 echo "Completed in $((scriptend-scriptstart))s"
