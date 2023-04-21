@@ -1,5 +1,7 @@
 steps:
-- name: 'bash'
-  args: ['./build-all.sh', 'gcr.io/sre-docker-registry/py-node', '$COMMIT_SHA']
+# - name: 'bash'
+#   args: ['./build-all.sh', 'gcr.io/sre-docker-registry/py-node', '$COMMIT_SHA']
+- name: 'gcr.io/cloud-builders/docker'
+  script: ./build-all.sh gcr.io/sre-docker-registry/py-node $COMMIT_SHA
 - name: 'bash'
   script: docker image push --all-tags gcr.io/sre-docker-registry/py-node
