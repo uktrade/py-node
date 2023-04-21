@@ -28,7 +28,7 @@ Images are rebuilt weekly to balance having the latest patch versions with not b
 
 The images are tagged as `{PYTHON_VERSION}-{NODE_VERSION}-{UBUNTU_VERSION}` - for example `3.11-18-jammy`.
 
-If you don'tr want to pin your Ubuntu or Node versions you can omit them from the tag name, the above image would also be tagged as `3.11-jammy`, `3.11-18` and `3.11` (given that `jammy` and `18` are the latest LTS versions of Ubuntu and Node respectively). The `latest` tag is attached to the image with the most recent versions of each of Python, Node and Ubuntu.
+If you don't want to pin your Ubuntu or Node versions you can omit them from the tag name, the above image would also be tagged as `3.11-jammy`, `3.11-18` and `3.11` (given that `jammy` and `18` are the latest LTS versions of Ubuntu and Node respectively). The `latest` tag is attached to the image with the most recent versions of each of Python, Node and Ubuntu.
 
 Supported versions of each package are defined in the `build-all.sh` file, currently:
 
@@ -49,10 +49,16 @@ docker build --build-arg UBUNTU_VERSION=jammy --build-arg PYTHON_VERSION=3.11 --
 
 If your OS/Python combination requires an extra apt repository for installation add it as the `APT_REPOSITORY` build arg.
 
-Alternatively, to build and tag all supported versions, run the bash script (note this will take some time):
+Alternatively, to build and tag all supported versions, run the bash script as follows (note this will take some time)> Note that you can override the default image name of `py-node` by passing the first positional parameter, and add an extra tag suffix to be applied in addition with a second parameter, e.g.
 
 ```
-./build-all.sh
+./build-all.sh gcr.io/your-repository/your-image commit-sha
+```
+
+You may want to follow this by pushing all tagged images to your repository:
+
+```
+docker image push --all-tags gcr.io/your-repository/your-image
 ```
 
 All output from the build commands is piped to `build.log` to keep stdout uncluttered.
