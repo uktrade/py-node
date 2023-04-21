@@ -34,6 +34,51 @@ touch ${LOG_FILE}
 DOCKER_BUILDKIT=1
 BUILDKIT_INLINE_CACHE=1
 
+
+build_and_tag () {
+    PRIMARY_TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}"
+    if [ ! -z "${APT_REPOSITORY}" ]; then
+        echo "Building ${PRIMARY_TAG_NAME} using the ${APT_REPOSITORY} apt repository"
+    else
+        echo "Building ${PRIMARY_TAG_NAME}"
+    fi
+
+    echo "=========================== ${PRIMARY_TAG_NAME} ===========================" >> ${LOG_FILE}
+    buildstart=$(date +%s)
+
+    # Build the image
+    docker build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} -t ${PRIMARY_TAG_NAME} -f Dockerfile . 2>> ${LOG_FILE}
+    docker tag ${PRIMARY_TAG_NAME} ${PRIMARY_TAG_NAME}${TAG_SUFFIX}
+
+    status=$?
+    if [ $status -eq 0 ]; then
+        # Apply extra tag names
+        if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        if [ "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${UBUNTU_VERSION}"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" -a "${PYTHON_VERSION}" == "${LATEST_PYTHON_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:latest"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        buildend=$(date +%s)
+        echo "   ...build succeeded in $((buildend-buildstart))s"
+    else
+        buildend=$(date +%s)
+        echo "   ...build failed after $((buildend-buildstart))s"
+    fi
+}
+
+
+
 # Time script
 scriptstart=$(date +%s)
 
@@ -62,50 +107,14 @@ do
             :
             NODE_VERSION=${n}
 
-            PRIMARY_TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}"
-            if [ ! -z "${APT_REPOSITORY}" ]; then
-                echo "Building ${PRIMARY_TAG_NAME} using the ${APT_REPOSITORY} apt repository"
-            else
-                echo "Building ${PRIMARY_TAG_NAME}"
-            fi
-
-            echo "=========================== ${PRIMARY_TAG_NAME} ===========================" >> ${LOG_FILE}
-            buildstart=$(date +%s)
-
-            # Build the image
-            docker build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} -t ${PRIMARY_TAG_NAME} -f Dockerfile . 2>> ${LOG_FILE}
-            docker tag ${PRIMARY_TAG_NAME} ${PRIMARY_TAG_NAME}${TAG_SUFFIX}
-
-            status=$?
-            if [ $status -eq 0 ]; then
-                # Apply extra tag names
-                if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" ]; then
-                    TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}"
-                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
-                fi
-                if [ "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
-                    TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${UBUNTU_VERSION}"
-                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
-                fi
-                if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
-                    TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}"
-                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
-                fi
-                if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" -a "${PYTHON_VERSION}" == "${LATEST_PYTHON_VERSION}" ]; then
-                    TAG_NAME="${TAG_PREFIX}:latest"
-                    docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
-                fi
-                buildend=$(date +%s)
-                echo "   ...build succeeded in $((buildend-buildstart))s"
-            else
-                buildend=$(date +%s)
-                echo "   ...build failed after $((buildend-buildstart))s"
-            fi
+            build_and_tag &
             echo ""
             echo "" >> ${LOG_FILE}
         done
     done
 done
+wait
+
 echo "=========================== COMPLETE ===========================" >> ${LOG_FILE}
 scriptend=$(date +%s)
 echo ""
