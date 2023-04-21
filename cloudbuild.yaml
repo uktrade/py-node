@@ -1,8 +1,9 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   script: ./build-all.sh gcr.io/sre-docker-registry/py-node $COMMIT_SHA-$BUILD_ID
-- name: 'bash'
-  script: docker image push --all-tags gcr.io/sre-docker-registry/py-node
+# - name: 'bash'
+#   script: docker image push --all-tags gcr.io/sre-docker-registry/py-node
+images: ['gcr.io/myproject/myimage']
 timeout: 3h
 options:
  machineType: 'E2_HIGHCPU_8'
