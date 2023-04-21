@@ -5,5 +5,5 @@ steps:
 #   script: docker image push --all-tags gcr.io/sre-docker-registry/py-node
 images: ['gcr.io/sre-docker-registry/py-node']
 timeout: 3h
-options:
- machineType: 'E2_HIGHCPU_32'
+# options:
+#   machineType: 'E2_HIGHCPU_32'

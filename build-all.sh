@@ -6,6 +6,9 @@
 #
 # Use passed-in argument but default to "py-node" as the image name,
 # and no suffix
+#
+# Runs build commands in background to make use of available threads
+
 TAG_PREFIX=${1:-"py-node"}
 TAG_SUFFIX=${2:-""}
 if [ -n "$TAG_SUFFIX" ]; then TAG_SUFFIX="-${TAG_SUFFIX}"; fi
@@ -29,11 +32,12 @@ LATEST_NODE_VERSION=${NODE_VERSIONS[0]}
 DOCKER_BUILDKIT=1
 BUILDKIT_INLINE_CACHE=1
 
+mkdir -p logs
 
 # all bash vars are global by default ...
 # this function expects to be run with all the right vars set by the below loop
 build_and_tag () {
-    local LOG_FILE="build-${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}.log"
+    local LOG_FILE="logs/build-${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}.log"
     [ -f ${LOG_FILE} ] && rm ${LOG_FILE}
     touch ${LOG_FILE}
 
