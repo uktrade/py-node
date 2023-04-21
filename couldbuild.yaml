@@ -1,0 +1,5 @@
+steps:
+- name: 'bash'
+  args: ['./build-all.sh', 'gcr.io/sre-docker-registry/py-node', '$COMMIT_SHA']
+- name: 'Push'
+  script: docker image push --all-tags gcr.io/sre-docker-registry/py-node
