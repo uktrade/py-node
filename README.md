@@ -67,4 +67,4 @@ Node was added to allow frontend builds without needing another container or ext
 
 Tagging was designed to allow easy pinning to versions of Ubuntu, Python and Node that are in LTS support from their respective organisations, while accepting security and patch updates.
 
-The Dockerfile was written to allow the same file to be used across multiple versions with slightly differning requirements (e.g. using extra apt repositories for python) for easier maintenance, at the expense of build caching.
+The Dockerfile was written to allow the same file to be used across multiple versions with slightly differning requirements (e.g. using extra apt repositories for python) for easier maintenance, at the expense of build caching. The script has been written to make use of multiple threads / cores for optimum efficiency.
