@@ -2,7 +2,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   script: |
     #!/usr/bin/env bash
-    ./build-all.sh gcr.io/sre-docker-registry/py-node ${SHA:0:12}-$ID
+    ./build-all.sh gcr.io/sre-docker-registry/py-node ${SHA:0:8}-${ID:0:8}
   env:
   - 'SHA=$COMMIT_SHA'
   - 'ID=$BUILD_ID'
