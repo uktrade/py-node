@@ -2,7 +2,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   script: ./build-all.sh gcr.io/sre-docker-registry/py-node $SHA-$ID
   env:
-  - 'SHA=${COMMIT_SHA:0:10}'
+  - 'SHA=$COMMIT_SHA'
   - 'ID=$BUILD_ID'
 images: ['gcr.io/sre-docker-registry/py-node']
 timeout: 3h
