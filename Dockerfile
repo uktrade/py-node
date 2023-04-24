@@ -49,6 +49,10 @@ RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     apt-get install -y --no-install-recommends \
     nodejs
 
+# Install build tools
+RUN pip install pip-tools poetry
+RUN npm install -g yarn
+
 # Tidy up
 RUN \
     # Clean apt cache
