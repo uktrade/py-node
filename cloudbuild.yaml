@@ -1,11 +1,30 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  script: |
-    #!/usr/bin/env bash
-    ./build-all.sh gcr.io/sre-docker-registry/py-node ${SHA:0:8}-${ID:0:8}
-  env:
-  - 'SHA=$COMMIT_SHA'
-  - 'ID=$BUILD_ID'
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - run
+      - '--privileged'
+      - 'linuxkit/binfmt:v0.8'
+    id: initialize-qemu
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - buildx
+      - create
+      - '--name'
+      - buildxbuilder
+    id: create-builder
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - buildx
+      - use
+      - buildxbuilder
+    id: select-builder
+  - name: 'gcr.io/cloud-builders/docker'
+    script: |
+      #!/usr/bin/env bash
+      ./build-all.sh gcr.io/sre-docker-registry/py-node ${SHA:0:8}-${ID:0:8}
+    env:
+    - 'SHA=$COMMIT_SHA'
+    - 'ID=$BUILD_ID'
 images: ['gcr.io/sre-docker-registry/py-node']
 timeout: 3h
 options:
