@@ -12,6 +12,8 @@ Using these images will allow your local development and CI builds to run quickl
 
 Note that these images are not optimised for size, or security, and are not suitable for production use. They do however use community best practice installation methods for the installed languages and so should be consistent with hosted environments.
 
+Images are built against `amd64` and `arm64v8` architectures, making them suitable for most desktop/server environments as well as Apple silicon.
+
 ## Usage
 
 Find these images in the `gcr.io/sre-docker-registry/py-node` image repository - for example to get an image locally you might run
