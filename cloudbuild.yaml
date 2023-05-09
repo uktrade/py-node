@@ -1,23 +1,23 @@
 steps:
-  - name: gcr.io/cloud-builders/docker
-    args:
-      - run
-      - '--privileged'
-      - 'linuxkit/binfmt:v0.8'
-    id: initialize-qemu
-  - name: gcr.io/cloud-builders/docker
-    args:
-      - buildx
-      - create
-      - '--name'
-      - buildxbuilder
-    id: create-builder
-  - name: gcr.io/cloud-builders/docker
-    args:
-      - buildx
-      - use
-      - buildxbuilder
-    id: select-builder
+  # - name: gcr.io/cloud-builders/docker
+  #   args:
+  #     - run
+  #     - '--privileged'
+  #     - 'linuxkit/binfmt:v0.8'
+  #   id: initialize-qemu
+  # - name: gcr.io/cloud-builders/docker
+  #   args:
+  #     - buildx
+  #     - create
+  #     - '--name'
+  #     - buildxbuilder
+  #   id: create-builder
+  # - name: gcr.io/cloud-builders/docker
+  #   args:
+  #     - buildx
+  #     - use
+  #     - buildxbuilder
+  #   id: select-builder
   - name: 'gcr.io/cloud-builders/docker'
     script: |
       #!/usr/bin/env bash
