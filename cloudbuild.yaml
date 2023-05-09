@@ -8,6 +8,19 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - buildx
+      - rm
+      - '--all-inactive'
+      - '--force'
+    id: create-builder
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - rm
+      - '--force'
+      - '/buildx_buildkit_buildxbuilder0'
+    id: create-builder
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - buildx
       - create
       - '--name'
       - buildxbuilder
