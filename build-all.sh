@@ -55,7 +55,7 @@ build_and_tag () {
 
     TAG_ARGS="${TAG_ARGS} -t ${PRIMARY_TAG_NAME}${TAG_SUFFIX}"
 
-    if [ $status -eq 0 ]; then
+    # if [ $status -eq 0 ]; then
         # Apply extra tag names
         if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" ]; then
             TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}"
@@ -80,10 +80,10 @@ build_and_tag () {
         buildend=$(date +%s)
         echo "   ...build succeeded in $((buildend-buildstart))s"
 
-    else
-        buildend=$(date +%s)
-        echo "   ...build failed after $((buildend-buildstart))s"
-    fi
+    # else
+    #     buildend=$(date +%s)
+    #     echo "   ...build failed after $((buildend-buildstart))s"
+    # fi
 }
 
 
