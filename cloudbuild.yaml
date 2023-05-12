@@ -38,7 +38,7 @@ steps:
     env:
     - 'SHA=$COMMIT_SHA'
     - 'ID=$BUILD_ID'
-timeout: 3h
+timeout: 6h
 options:
   env:
     - DOCKER_CLI_EXPERIMENTAL=enabled
