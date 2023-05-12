@@ -32,7 +32,7 @@ The images are tagged as `{PYTHON_VERSION}-{NODE_VERSION}-{UBUNTU_VERSION}` - fo
 
 If you don'tr want to pin your Ubuntu or Node versions you can omit them from the tag name, the above image would also be tagged as `3.11-jammy`, `3.11-18` and `3.11` (given that `jammy` and `18` are the latest LTS versions of Ubuntu and Node respectively). The `latest` tag is attached to the image with the most recent versions of each of Python, Node and Ubuntu.
 
-Supported versions of each package are defined in the `build-all.sh` file, currently:
+Supported versions of each package are defined in the `build-ci.sh` file, currently:
 
 ```sh
 # All supported LTS versions
@@ -57,7 +57,7 @@ Alternatively, to build and tag all supported versions, run the following bash s
 ./build-all-threaded.sh
 ```
 
-Note that this script will use all avaialble threads to cut down on build time, but will use the docker engine and therefore only create single-architecture images, for whichever architecture your system is based on. The `build-all.sh` script run by the CI system uses buildx to create multi-architecture images at the expense of not running in a multi-threaded way.
+Note that this script will use all avaialble threads to cut down on build time, but will use the docker engine and therefore only create single-architecture images, for whichever architecture your system is based on. The `build-ci.sh` script run by the CI system uses buildx to create multi-architecture images at the expense of not running in a multi-threaded way.
 
 All output from the build commands is piped to `build.log` to keep stdout uncluttered.
 

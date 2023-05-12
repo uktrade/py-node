@@ -32,15 +32,9 @@ LATEST_NODE_VERSION=${NODE_VERSIONS[0]}
 DOCKER_BUILDKIT=1
 BUILDKIT_INLINE_CACHE=1
 
-mkdir -p logs
-
 # all bash vars are global by default ...
 # this function expects to be run with all the right vars set by the below loop
 build_and_tag () {
-    local LOG_FILE="logs/build-${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}.log"
-    [ -f ${LOG_FILE} ] && rm ${LOG_FILE}
-    touch ${LOG_FILE}
-
     PRIMARY_TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}-${UBUNTU_VERSION}"
     if [ ! -z "${APT_REPOSITORY}" ]; then
         echo "Building ${PRIMARY_TAG_NAME} using the ${APT_REPOSITORY} apt repository"
@@ -48,7 +42,6 @@ build_and_tag () {
         echo "Building ${PRIMARY_TAG_NAME}"
     fi
 
-    echo "=========================== ${PRIMARY_TAG_NAME} ===========================" >> ${LOG_FILE}
     buildstart=$(date +%s)
 
     TAG_ARGS="-t ${PRIMARY_TAG_NAME}"
@@ -74,7 +67,7 @@ build_and_tag () {
     fi
 
     # Build the image
-    docker buildx build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} --platform linux/amd64,linux/arm64/v8 ${TAG_ARGS} -f Dockerfile --push .
+    buildx build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} --platform linux/amd64,linux/arm/v8,linux/arm64 ${TAG_ARGS} -f Dockerfile --push .
 
     buildend=$(date +%s)
     status=$?
