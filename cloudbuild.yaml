@@ -42,4 +42,3 @@ timeout: 3h
 options:
   env:
     - DOCKER_CLI_EXPERIMENTAL=enabled
-  # machineType: 'E2_HIGHCPU_8'

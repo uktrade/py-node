@@ -51,11 +51,13 @@ docker build --build-arg UBUNTU_VERSION=jammy --build-arg PYTHON_VERSION=3.11 --
 
 If your OS/Python combination requires an extra apt repository for installation add it as the `APT_REPOSITORY` build arg.
 
-Alternatively, to build and tag all supported versions, run the bash script (note this will take some time):
+Alternatively, to build and tag all supported versions, run the following bash script (note this will take some time):
 
 ```
-./build-all.sh
+./build-all-threaded.sh
 ```
+
+Note that this script will use all avaialble threads to cut down on build time, but will use the docker engine and therefore only create single-architecture images, for whichever architecture your system is based on. The `build-all.sh` script run by the CI system uses buildx to create multi-architecture images at the expense of not running in a multi-threaded way.
 
 All output from the build commands is piped to `build.log` to keep stdout uncluttered.
 
@@ -69,4 +71,6 @@ Node was added to allow frontend builds without needing another container or ext
 
 Tagging was designed to allow easy pinning to versions of Ubuntu, Python and Node that are in LTS support from their respective organisations, while accepting security and patch updates.
 
-The Dockerfile was written to allow the same file to be used across multiple versions with slightly differning requirements (e.g. using extra apt repositories for python) for easier maintenance, at the expense of build caching. The script has been written to make use of multiple threads / cores for optimum efficiency.
+The Dockerfile was written to allow the same file to be used across multiple versions with slightly differning requirements (e.g. using extra apt repositories for python) for easier maintenance, at the expense of build caching.
+
+One build script has been written to make use of multiple threads / cores for optimum efficiency while the other used in CI uses buildx to create multi-arch images suitable for most dev systems.

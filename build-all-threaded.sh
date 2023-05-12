@@ -51,36 +51,33 @@ build_and_tag () {
     echo "=========================== ${PRIMARY_TAG_NAME} ===========================" >> ${LOG_FILE}
     buildstart=$(date +%s)
 
-    TAG_ARGS="-t ${PRIMARY_TAG_NAME}"
-
-    TAG_ARGS="${TAG_ARGS} -t ${PRIMARY_TAG_NAME}${TAG_SUFFIX}"
-
-    # Apply extra tag names
-    if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" ]; then
-        TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}"
-        TAG_ARGS="${TAG_ARGS} -t ${TAG_NAME}"
-    fi
-    if [ "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
-        TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${UBUNTU_VERSION}"
-        TAG_ARGS="${TAG_ARGS} -t ${TAG_NAME}"
-    fi
-    if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
-        TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}"
-        TAG_ARGS="${TAG_ARGS} -t ${TAG_NAME}"
-    fi
-    if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" -a "${PYTHON_VERSION}" == "${LATEST_PYTHON_VERSION}" ]; then
-        TAG_NAME="${TAG_PREFIX}:latest"
-        TAG_ARGS="${TAG_ARGS} -t ${TAG_NAME}"
-    fi
-
     # Build the image
-    docker buildx build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} --platform linux/amd64 ${TAG_ARGS} -f Dockerfile --push .
+    docker build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} -t ${PRIMARY_TAG_NAME} -f Dockerfile . 2>> ${LOG_FILE}
+    docker tag ${PRIMARY_TAG_NAME} ${PRIMARY_TAG_NAME}${TAG_SUFFIX}
 
-    buildend=$(date +%s)
     status=$?
     if [ $status -eq 0 ]; then
+        # Apply extra tag names
+        if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${NODE_VERSION}"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        if [ "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}-${UBUNTU_VERSION}"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:${PYTHON_VERSION}"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        if [ "${UBUNTU_VERSION}" == "${LATEST_UBUNTU_VERSION}" -a "${NODE_VERSION}" == "${LATEST_NODE_VERSION}" -a "${PYTHON_VERSION}" == "${LATEST_PYTHON_VERSION}" ]; then
+            TAG_NAME="${TAG_PREFIX}:latest"
+            docker tag ${PRIMARY_TAG_NAME} ${TAG_NAME}
+        fi
+        buildend=$(date +%s)
         echo "   ...build succeeded in $((buildend-buildstart))s"
     else
+        buildend=$(date +%s)
         echo "   ...build failed after $((buildend-buildstart))s"
     fi
 }
@@ -115,7 +112,9 @@ do
             :
             NODE_VERSION=${n}
 
-            build_and_tag
+            # run all the build and tag operations in the background to make
+            # use of multiple threads / CPUs
+            build_and_tag &
 
             echo ""
         done
