@@ -38,7 +38,6 @@ steps:
     env:
     - 'SHA=$COMMIT_SHA'
     - 'ID=$BUILD_ID'
-images: ['gcr.io/sre-docker-registry/py-node']
 timeout: 3h
 options:
   env:
