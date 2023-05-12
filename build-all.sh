@@ -117,7 +117,7 @@ do
 
             # run all the build and tag operations in the background to make
             # use of multiple threads / CPUs
-            build_and_tag &
+            build_and_tag
 
             echo ""
         done
