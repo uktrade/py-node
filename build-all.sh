@@ -74,7 +74,7 @@ build_and_tag () {
     fi
 
     # Build the image
-    docker buildx build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} --platform linux/amd64 ${TAG_ARGS} -f Dockerfile --push . 2>> ${LOG_FILE}
+    docker buildx build --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} --build-arg APT_REPOSITORY=${APT_REPOSITORY} --build-arg PYTHON_VERSION=${PYTHON_VERSION} --build-arg NODE_VERSION=${NODE_VERSION} --platform linux/amd64 ${TAG_ARGS} -f Dockerfile --push .
 
     buildend=$(date +%s)
     status=$?
