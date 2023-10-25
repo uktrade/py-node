@@ -15,11 +15,11 @@ if [ -n "$TAG_SUFFIX" ]; then TAG_SUFFIX="-${TAG_SUFFIX}"; fi
 
 # All supported LTS versions
 UBUNTU_VERSIONS=( jammy focal )
-PYTHON_VERSIONS=( 3.11 3.10 3.9 3.8 3.7 )
-NODE_VERSIONS=( 18 16 14 )
+PYTHON_VERSIONS=( 3.12 3.11 3.10 3.9 3.8 3.7 )
+NODE_VERSIONS=( 20 18 16 14 )
 
 # only some python versions are supported by the default OS repositories
-JAMMY_SUPPORTED_PYTHON_VERSIONS=( 3.11 3.10 )
+JAMMY_SUPPORTED_PYTHON_VERSIONS=( 3.12 3.11 3.10 )
 JAMMY_UNSUPPORTED_REPOSITORY="ppa:deadsnakes/ppa"
 FOCAL_SUPPORTED_PYTHON_VERSIONS=( 3.9 3.8 )
 FOCAL_UNSUPPORTED_REPOSITORY="ppa:deadsnakes/ppa"  # "universe" only goes up to 3.9
